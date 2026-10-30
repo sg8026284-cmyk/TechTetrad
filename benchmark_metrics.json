@@ -1,5 +1,5 @@
 {
-  "evaluation_timestamp": "2026-10-30T20:01:24Z",
+  "evaluation_timestamp": "2026-10-30T23:13:44Z",
   "dataset_statistics": {
     "vulnerable_codebase_files": 5,
     "vulnerable_ast_nodes": 266,
@@ -25,8 +25,8 @@
     "patch_success_rate": 1.0
   },
   "performance": {
-    "vulnerable_suite_duration_sec": 0.022,
-    "safe_suite_duration_sec": 0.005,
-    "total_duration_sec": 0.026
+    "vulnerable_suite_duration_sec": 0.044,
+    "safe_suite_duration_sec": 0.013,
+    "total_duration_sec": 0.057
   }
 }

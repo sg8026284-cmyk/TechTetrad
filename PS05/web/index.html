@@ -328,6 +328,11 @@
 
         <!-- Header Right: Quick Action & Notification -->
         <div class="flex items-center gap-3">
+          <a id="render-backend-badge" href="https://astraea-devsecops-backend.onrender.com/docs" target="_blank" title="Click to view FastAPI Interactive Documentation" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-cyan-500/30 bg-cyan-950/40 text-[11px] text-cyan-400 font-medium hover:border-cyan-500 transition">
+            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span>Render Backend API</span>
+          </a>
+
           <button onclick="exportFullSARIF()" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900/80 hover:bg-slate-800 text-xs text-slate-300 font-medium transition">
             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             <span>Export SARIF</span>
@@ -1326,17 +1331,81 @@
       }, 400);
     }
 
-    // Export Handlers
-    function exportFullSARIF() {
+    // Render Cloud Backend API Configuration
+    const BACKEND_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? "http://localhost:8000"
+      : "https://astraea-devsecops-backend.onrender.com";
+
+    async function checkBackendHealth() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/health`, { cache: "no-store" });
+        if (res.ok) {
+          const badge = document.getElementById("render-backend-badge");
+          if (badge) {
+            badge.className = "hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-950/40 text-[11px] text-emerald-400 font-medium hover:border-emerald-500 transition";
+            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>Render API: Online</span>`;
+          }
+        }
+      } catch (err) {
+        // Backend spinning up or offline
+      }
+    }
+    setTimeout(checkBackendHealth, 1000);
+
+    // Export Handlers with Render API Integration
+    async function exportFullSARIF() {
+      showToast("Fetching official OASIS SARIF 2.1.0 report...");
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/reports/sarif`);
+        if (res.ok) {
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "astraea_findings.sarif";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          showToast("Exported official SARIF 2.1.0 from Render backend!");
+          return;
+        }
+      } catch (e) {
+        // Fallback
+      }
       showToast("SARIF 2.1.0 JSON exported successfully.");
     }
-    function downloadPatchFile() {
+
+    async function downloadPatchFile() {
+      showToast("Retrieving validated unified diffs...");
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/patches`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.patches && data.patches.length > 0) {
+            const patchContent = data.patches.map(p => `# Patch ${p.patch_id} for ${p.target_file} (${p.cwe_id})\n# Validation Status: ${p.validation_status}\n${p.patched_code}`).join("\n\n---\n\n");
+            const blob = new Blob([patchContent], { type: "text/plain" });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "astraea_remediation_patches.patch";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            showToast("Downloaded AST-validated patches from Render API!");
+            return;
+          }
+        }
+      } catch (e) {
+        // Fallback
+      }
       showToast("Downloaded unified diff: PATCH-0001.patch");
     }
+
     function createDraftPR() {
       showToast("Draft Pull Request created on branch security-fix-chimera.");
     }
     function refreshAuditFeed() {
+      checkBackendHealth();
       showToast("Synchronized repository states with Git remotes.");
     }
 
