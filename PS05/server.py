@@ -194,7 +194,7 @@ def trigger_audit_scan(request: AuditScanRequest):
         orchestrator = AuditorOrchestrator(allow_network=request.allow_network)
         report = orchestrator.run_audit(target)
         _LATEST_REPORT = report
-        return report.model_dump()
+        return report.model_dump(mode="json")
     finally:
         if temp_dir and os.path.exists(temp_dir):
             shutil.rmtree(temp_dir, ignore_errors=True)
@@ -208,7 +208,7 @@ def get_findings(repo: Optional[str] = None):
         "scan_id": report.scan_id,
         "target_path": report.target_path,
         "summary": report.summary,
-        "findings": [f.model_dump() for f in report.findings]
+        "findings": [f.model_dump(mode="json") for f in report.findings]
     }
 
 
@@ -254,7 +254,7 @@ def get_patches():
     return {
         "scan_id": report.scan_id,
         "total_patches": len(report.patches),
-        "patches": [p.model_dump() for p in report.patches]
+        "patches": [p.model_dump(mode="json") for p in report.patches]
     }
 
 
@@ -295,3 +295,4 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("server:app", host="0.0.0.0", port=port, reload=True)
+
