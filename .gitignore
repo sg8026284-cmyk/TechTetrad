@@ -1,0 +1,8 @@
+.env
+*.env
+__pycache__/
+*.pyc
+*.pyo
+audit_output/
+test_metrics.json
+node_modules/

@@ -1,0 +1,72 @@
+{
+  "vulnerable_suite": [
+    {
+      "file": "command_injection.py",
+      "cwe": "CWE-78",
+      "category": "COMMAND_INJECTION",
+      "sink": "subprocess.run",
+      "expected_status": "CONFIRMED"
+    },
+    {
+      "file": "sql_injection.py",
+      "cwe": "CWE-89",
+      "category": "SQL_INJECTION",
+      "sink": "cursor.execute",
+      "expected_status": "CONFIRMED"
+    },
+    {
+      "file": "path_traversal.py",
+      "cwe": "CWE-22",
+      "category": "PATH_TRAVERSAL",
+      "sink": "open",
+      "expected_status": "CONFIRMED"
+    },
+    {
+      "file": "deserialization.py",
+      "cwe": "CWE-502",
+      "category": "INSECURE_DESERIALIZATION",
+      "sink": "yaml.load",
+      "expected_status": "CONFIRMED"
+    },
+    {
+      "file": "weak_crypto.py",
+      "cwe": "CWE-327",
+      "category": "WEAK_CRYPTOGRAPHY",
+      "sink": "hashlib.md5",
+      "expected_status": "CONFIRMED"
+    },
+    {
+      "manifest": "requirements.txt",
+      "cwe": "CWE-1395",
+      "category": "DEPENDENCY_VULNERABILITY",
+      "expected_vulnerable_packages": ["requests", "flask", "urllib3", "jinja2", "pyyaml"]
+    }
+  ],
+  "safe_suite": [
+    {
+      "file": "safe_command.py",
+      "expected_findings": 0
+    },
+    {
+      "file": "safe_sql.py",
+      "expected_findings": 0
+    },
+    {
+      "file": "safe_path.py",
+      "expected_findings": 0
+    },
+    {
+      "file": "safe_deserialization.py",
+      "expected_findings": 0
+    },
+    {
+      "file": "safe_crypto.py",
+      "expected_findings": 0
+    },
+    {
+      "manifest": "requirements.txt",
+      "expected_vulnerable_packages": []
+    }
+  ]
+}
+

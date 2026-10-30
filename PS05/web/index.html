@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Astraea DevSecOps AI Auditor — Multi-Agent Vulnerability & Dependency Graph Dashboard</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @keyframes pulse-slow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.85; }
+    }
+    .pulse-urgent {
+      animation: pulse-slow 2s infinite ease-in-out;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    .glow-cyan {
+      box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.25);
+    }
+    .glow-rose {
+      box-shadow: 0 0 20px -3px rgba(244, 63, 94, 0.35);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen selection:bg-cyan-500 selection:text-slate-950 overflow-x-hidden">
+
+  <!-- ========================================================================= -->
+  <!-- 1. AUTHENTICATION & ONBOARDING VIEW (Split Screen) -->
+  <!-- ========================================================================= -->
+  <div id="auth-view" class="min-h-screen flex flex-col lg:flex-row bg-slate-950">
+    <!-- Left Hero & Branding Section -->
+    <div class="lg:w-1/2 p-8 lg:p-16 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800 bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950/30 relative overflow-hidden">
+      <!-- Decorative Tech Background Grid -->
+      <div class="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none"></div>
+      
+      <div class="relative z-10">
+        <!-- Brand Logo -->
+        <div class="flex items-center space-x-3 mb-10">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+            <svg class="w-6 h-6 text-slate-950" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+              ASTRAEA <span class="text-xs uppercase tracking-widest px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-semibold">DevSecOps AI</span>
+            </h1>
+            <p class="text-xs text-slate-400">Automated Multi-Agent Codebase Auditor</p>
+          </div>
+        </div>
+
+        <div class="space-y-6 max-w-lg mt-12">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/60 text-xs text-slate-300">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Coordinated Multi-Agent Orchestration v2.4
+          </div>
+          <h2 class="text-3xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+            Autonomous Vulnerability Discovery & <span class="bg-gradient-to-r from-cyan-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">Graph-Linked Remediation</span>
+          </h2>
+          <p class="text-slate-400 text-sm lg:text-base leading-relaxed">
+            Eliminate software supply chain blindspots with coordinated AI agents performing deep AST structural parsing, inter-procedural taint analysis, OSV intelligence correlation, and self-validating patch generation.
+          </p>
+        </div>
+      </div>
+
+      <!-- Feature Pill highlights -->
+      <div class="relative z-10 grid grid-cols-2 gap-4 my-10 max-w-lg">
+        <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm">
+          <div class="text-cyan-400 font-semibold text-sm flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Tree-sitter AST Graph
+          </div>
+          <div class="text-xs text-slate-400 mt-1">Cross-function call graph & symbol table indexing</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm">
+          <div class="text-indigo-400 font-semibold text-sm flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Zero-Leak Taint Engine
+          </div>
+          <div class="text-xs text-slate-400 mt-1">Full source-to-sink data pathways with sanitizer proof</div>
+        </div>
+      </div>
+
+      <!-- Footer trust badge -->
+      <div class="relative z-10 flex items-center justify-between text-xs text-slate-400 border-t border-slate-800/60 pt-4">
+        <span>OASIS SARIF 2.1.0 Ready</span>
+        <span>CVSS v3.1 / CWE Top-25</span>
+        <span class="text-emerald-400 font-mono">Precision: 100%</span>
+      </div>
+    </div>
+
+    <!-- Right Authentication Forms Section -->
+    <div class="lg:w-1/2 p-8 lg:p-20 flex flex-col justify-center items-center bg-slate-950">
+      <div class="w-full max-w-md">
+        
+        <!-- Auth Tabs (Sign In / Register) -->
+        <div class="flex rounded-xl bg-slate-900 p-1.5 border border-slate-800 mb-8">
+          <button id="tab-btn-signin" onclick="switchAuthTab('signin')" class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all text-white bg-slate-800 shadow">
+            Sign In
+          </button>
+          <button id="tab-btn-register" onclick="switchAuthTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all text-slate-400 hover:text-white">
+            Register Account
+          </button>
+        </div>
+
+        <!-- Sign In Form -->
+        <form id="form-signin" onsubmit="handleAuthSubmit(event, 'signin')" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">Work Email</label>
+            <div class="relative">
+              <input type="email" id="signin-email" value="aris.thome@astraea.sec" required
+                class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition">
+              <span class="absolute right-3.5 top-3.5 text-slate-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/></svg>
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider">Master Password</label>
+              <a href="#" class="text-xs text-cyan-400 hover:text-cyan-300">Forgot?</a>
+            </div>
+            <div class="relative">
+              <input type="password" id="signin-password" value="chimera-audit-2026" required
+                class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition">
+              <span class="absolute right-3.5 top-3.5 text-slate-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="flex items-center text-xs text-slate-400 gap-2 pt-1">
+            <input type="checkbox" id="remember-me" checked class="rounded border-slate-700 bg-slate-900 text-cyan-500 focus:ring-0">
+            <label for="remember-me">Remember active audit session</label>
+          </div>
+
+          <button type="submit" class="w-full mt-4 py-3.5 px-4 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-cyan-500/25 transition duration-150 flex items-center justify-center gap-2">
+            <span>Access Command Dashboard</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </form>
+
+        <!-- Register Form (Hidden by default) -->
+        <form id="form-register" onsubmit="handleAuthSubmit(event, 'register')" class="space-y-4 hidden">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">Full Name</label>
+            <input type="text" id="reg-name" placeholder="Dr. Aris Thome" required
+              class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">Work Email</label>
+            <input type="email" id="reg-email" placeholder="aris.thome@organization.com" required
+              class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">Role in Organization</label>
+            <select id="reg-role" required
+              class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition">
+              <option value="Security Engineer" selected>Security Engineer</option>
+              <option value="Developer">Application Developer</option>
+              <option value="DevOps Lead">DevOps Lead</option>
+              <option value="CISO">CISO / Executive</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1.5">Password</label>
+            <input type="password" id="reg-password" placeholder="••••••••••••" required
+              class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition">
+          </div>
+
+          <button type="submit" class="w-full mt-4 py-3.5 px-4 bg-gradient-to-r from-emerald-400 to-cyan-500 hover:from-emerald-300 hover:to-cyan-400 text-slate-950 font-bold rounded-xl shadow-lg shadow-emerald-500/25 transition duration-150 flex items-center justify-center gap-2">
+            <span>Create Auditor Workspace</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+          </button>
+        </form>
+
+        <div class="mt-8 text-center text-xs text-slate-400">
+          Enterprise SSO enabled: <span class="text-slate-300">GitHub Enterprise, Okta, SAML 2.0</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN APPLICATION WORKSPACE (Hidden until authenticated) -->
+  <!-- ========================================================================= -->
+  <div id="app-workspace" class="hidden min-h-screen flex bg-slate-950">
+
+    <!-- Interactive Navigation Sidebar -->
+    <aside class="w-64 border-r border-slate-800/80 bg-slate-950/80 backdrop-blur-md flex flex-col justify-between shrink-0">
+      <div>
+        <!-- App Header Logo in Sidebar -->
+        <div class="p-5 border-b border-slate-800/70 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-md shadow-cyan-500/30">
+            <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+          </div>
+          <div>
+            <div class="font-bold text-sm tracking-tight text-white">ASTRAEA</div>
+            <div class="text-[11px] text-cyan-400 font-mono tracking-wider">AI AUDITOR v2.4</div>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="p-3 space-y-1">
+          <button onclick="switchView('dashboard')" id="nav-btn-dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-white bg-slate-900 border border-slate-800">
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            <span>Command Dashboard</span>
+          </button>
+
+          <button onclick="switchView('workbench')" id="nav-btn-workbench" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900/60">
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+            <span>Auditor Workbench</span>
+            <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">Live</span>
+          </button>
+
+          <button onclick="switchView('findings')" id="nav-btn-findings" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900/60">
+            <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <span>Findings & CVEs</span>
+            <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 font-bold border border-rose-500/30">4</span>
+          </button>
+
+          <button onclick="switchView('dataflow')" id="nav-btn-dataflow" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900/60">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            <span>Dependency Graph</span>
+          </button>
+
+          <button onclick="switchView('telemetry')" id="nav-btn-telemetry" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900/60">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+            <span>Agent Telemetry</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Agent Cluster Health Status in Sidebar Bottom -->
+      <div class="p-4 border-t border-slate-800/70">
+        <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800">
+          <div class="flex items-center justify-between text-xs mb-2">
+            <span class="text-slate-400 font-medium">Orchestrator Cluster</span>
+            <span class="flex items-center gap-1.5 text-emerald-400 font-mono text-[11px]">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+              5/5 Online
+            </span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-1.5 rounded-full w-full"></div>
+          </div>
+          <div class="mt-2 text-[11px] text-slate-400 flex justify-between font-mono">
+            <span>AST: Ready</span>
+            <span>OSV: Synced</span>
+          </div>
+        </div>
+
+        <!-- User badge & logout -->
+        <div class="mt-4 flex items-center justify-between px-1">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 font-bold flex items-center justify-center text-xs">
+              AT
+            </div>
+            <div class="leading-tight">
+              <div id="user-display-name" class="text-xs font-semibold text-white">Dr. Aris Thome</div>
+              <div id="user-display-role" class="text-[11px] text-slate-400">Security Lead</div>
+            </div>
+          </div>
+          <button onclick="handleLogout()" title="Sign Out" class="text-slate-500 hover:text-rose-400 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Stage Area -->
+    <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+
+      <!-- Top Header Navigation -->
+      <header class="h-16 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md px-6 flex items-center justify-between shrink-0 z-20">
+        
+        <!-- Search bar & Project switcher -->
+        <div class="flex items-center gap-4 flex-1 max-w-xl">
+          <div class="relative w-full max-w-sm">
+            <input type="text" id="global-search" oninput="handleSearch(this.value)" placeholder="Search CVEs, tainted sinks, repos..." 
+              class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-12 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
+            <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <span class="absolute right-2.5 top-1.5 px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400 border border-slate-700 font-mono">⌘K</span>
+          </div>
+
+          <!-- Project Switcher -->
+          <div class="relative">
+            <button onclick="toggleProjectDropdown()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-200 transition">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              <span id="active-project-label">Project Chimera: Repo Audit Summary</span>
+              <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="project-dropdown" class="hidden absolute left-0 mt-2 w-64 rounded-xl bg-slate-900 border border-slate-800 shadow-xl p-1.5 z-30 space-y-1">
+              <div onclick="selectProject('Project Chimera: Repo Audit Summary')" class="p-2 rounded-lg hover:bg-slate-800 text-xs text-white cursor-pointer font-medium flex items-center justify-between">
+                <span>Project Chimera (Primary)</span>
+                <span class="text-[10px] text-cyan-400 font-mono">27 Repos</span>
+              </div>
+              <div onclick="selectProject('Project Valkyrie: Cloud Services')" class="p-2 rounded-lg hover:bg-slate-800 text-xs text-slate-300 cursor-pointer font-medium flex items-center justify-between">
+                <span>Project Valkyrie</span>
+                <span class="text-[10px] text-slate-400 font-mono">12 Repos</span>
+              </div>
+              <div onclick="selectProject('Payment Gateway Core v4')" class="p-2 rounded-lg hover:bg-slate-800 text-xs text-slate-300 cursor-pointer font-medium flex items-center justify-between">
+                <span>Payment Gateway Core</span>
+                <span class="text-[10px] text-slate-400 font-mono">5 Repos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Header Right: Quick Action & Notification -->
+        <div class="flex items-center gap-3">
+          <button onclick="exportFullSARIF()" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900/80 hover:bg-slate-800 text-xs text-slate-300 font-medium transition">
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>Export SARIF</span>
+          </button>
+
+          <!-- Primary Start Audit Button -->
+          <button onclick="openNewAuditModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition duration-150">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+            <span>Start New Audit</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Main Stage Body -->
+      <main class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+
+        <!-- ================================================================= -->
+        <!-- SCREEN 2: MAIN COMMAND DASHBOARD -->
+        <!-- ================================================================= -->
+        <div id="view-dashboard" class="space-y-6">
+
+          <!-- Metrics Cards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- Card 1: Total Repositories -->
+            <div class="p-5 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-slate-700/80 transition relative overflow-hidden">
+              <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
+                <span>Total Repositories</span>
+                <span class="text-emerald-400 flex items-center font-mono">+3 new</span>
+              </div>
+              <div class="mt-3 flex items-baseline justify-between">
+                <span class="text-3xl font-black text-white">27</span>
+                <!-- SVG Sparkline Trend -->
+                <svg class="w-24 h-8 text-cyan-400 stroke-current" fill="none" stroke-width="2.5" viewBox="0 0 100 30">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M0,25 Q15,20 30,22 T60,12 T80,18 T100,5"/>
+                </svg>
+              </div>
+              <div class="mt-2 text-xs text-slate-400 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                <span>24 clean, 3 flagged in scan</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Critical Vulnerabilities (Pulsing Urgent Badge) -->
+            <div class="p-5 rounded-2xl bg-slate-900/70 border border-rose-500/30 hover:border-rose-500/50 transition relative overflow-hidden glow-rose">
+              <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
+                <span>Critical Vulnerabilities</span>
+                <span class="pulse-urgent px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 text-[11px] font-bold">
+                  Urgent Attention
+                </span>
+              </div>
+              <div class="mt-3 flex items-baseline gap-3">
+                <span class="text-3xl font-black text-rose-400">4</span>
+                <span class="text-xs text-rose-300 font-medium">CWE-78, CWE-89, CWE-502</span>
+              </div>
+              <div class="mt-2 text-xs text-slate-400 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                <span>Verified taint pathways to sinks</span>
+              </div>
+            </div>
+
+            <!-- Card 3: Active Security Alerts -->
+            <div class="p-5 rounded-2xl bg-slate-900/70 border border-amber-500/20 hover:border-amber-500/40 transition relative overflow-hidden">
+              <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
+                <span>Active Alerts</span>
+                <div class="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+              </div>
+              <div class="mt-3 flex items-baseline gap-2">
+                <span class="text-3xl font-black text-amber-400">14</span>
+                <span class="text-xs text-slate-400 font-normal">Across 6 microservices</span>
+              </div>
+              <div class="mt-2 text-xs text-slate-400 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                <span>Requires peer security review</span>
+              </div>
+            </div>
+
+            <!-- Card 4: Dependency Health Score (Circular Gauge) -->
+            <div class="p-5 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-slate-700/80 transition relative overflow-hidden">
+              <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
+                <span>Dependency Health Score</span>
+                <span class="text-cyan-400 font-mono text-xs">Target: 95%</span>
+              </div>
+              <div class="mt-2 flex items-center justify-between">
+                <div>
+                  <span class="text-3xl font-black text-emerald-400">84%</span>
+                  <div class="text-xs text-slate-400 mt-1">5 vulnerable packages</div>
+                </div>
+                <!-- Circular Progress Ring Gauge -->
+                <div class="relative w-14 h-14 flex items-center justify-center">
+                  <svg class="w-14 h-14 transform -rotate-90" viewBox="0 0 36 36">
+                    <path class="text-slate-800" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="text-emerald-400" stroke-width="3.5" stroke-dasharray="84, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <span class="absolute text-[11px] font-bold text-white">84</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Middle Section: Two-Column Layout -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left: Repository Activity Feed (7 Cols) -->
+            <div class="lg:col-span-7 p-6 rounded-2xl bg-slate-900/70 border border-slate-800/80 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                      <span>Repository Audit Activity Feed</span>
+                      <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                    </h3>
+                    <p class="text-xs text-slate-400">Real-time status of target codebases across CI/CD triggers</p>
+                  </div>
+                  <button onclick="refreshAuditFeed()" class="text-xs text-slate-400 hover:text-cyan-400 flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    <span>Sync</span>
+                  </button>
+                </div>
+
+                <div class="space-y-3">
+                  <!-- Repo Item 1 -->
+                  <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-slate-700 transition flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20 font-mono text-xs">
+                        PY
+                      </div>
+                      <div>
+                        <div class="text-xs font-bold text-white flex items-center gap-2">
+                          <span>auth-service-v2</span>
+                          <span class="text-[10px] text-slate-400 font-normal">main · 42 commits</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">Scanned: 1,420 AST nodes · 2 vulnerabilities mitigated</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Scan Complete
+                      </span>
+                      <button onclick="inspectFinding('FINDING-0001')" class="text-xs text-cyan-400 hover:underline">View Diffs</button>
+                    </div>
+                  </div>
+
+                  <!-- Repo Item 2 -->
+                  <div class="p-3.5 rounded-xl bg-slate-950/60 border border-cyan-500/30 glow-cyan transition flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center border border-cyan-500/20 font-mono text-xs animate-pulse">
+                        JS
+                      </div>
+                      <div>
+                        <div class="text-xs font-bold text-white flex items-center gap-2">
+                          <span>payment-gateway</span>
+                          <span class="text-[10px] text-cyan-400 font-mono">auditing in progress</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">Taint Analysis Agent tracing untrusted checkout payloads...</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                        Auditing (76%)
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Repo Item 3 -->
+                  <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-slate-700 transition flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-lg bg-slate-800 text-slate-400 flex items-center justify-center font-mono text-xs">
+                        TS
+                      </div>
+                      <div>
+                        <div class="text-xs font-bold text-slate-300 flex items-center gap-2">
+                          <span>legacy-monolith</span>
+                          <span class="text-[10px] text-slate-400 font-normal">v3.8.1-release</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">Pending in multi-agent analysis queue (position: #2)</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">
+                        Queued
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-slate-800/80 flex justify-between items-center text-xs text-slate-400">
+                <span>Auto-scan webhook trigger: Active</span>
+                <button onclick="switchView('workbench')" class="text-cyan-400 hover:text-cyan-300 font-medium">Explore All 27 Repositories →</button>
+              </div>
+            </div>
+
+            <!-- Right: Vulnerability Severity Distribution Bar Chart (5 Cols) -->
+            <div class="lg:col-span-5 p-6 rounded-2xl bg-slate-900/70 border border-slate-800/80 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 class="text-sm font-bold text-white">Vulnerability Severity Distribution</h3>
+                    <p class="text-xs text-slate-400">Aggregated breakdown across active findings</p>
+                  </div>
+                  <span class="text-xs text-slate-400 font-mono">Total: 129</span>
+                </div>
+
+                <!-- Distribution Bars -->
+                <div class="space-y-3.5 mt-4">
+                  <!-- Critical -->
+                  <div>
+                    <div class="flex justify-between text-xs font-semibold mb-1">
+                      <span class="text-rose-400 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span> Critical (CVSS 9.0 - 10.0)
+                      </span>
+                      <span class="text-white font-mono">4 findings</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                      <div class="bg-gradient-to-r from-rose-500 to-rose-400 h-2 rounded-full" style="width: 14%;"></div>
+                    </div>
+                  </div>
+
+                  <!-- High -->
+                  <div>
+                    <div class="flex justify-between text-xs font-semibold mb-1">
+                      <span class="text-amber-400 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span> High (CVSS 7.0 - 8.9)
+                      </span>
+                      <span class="text-white font-mono">12 findings</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                      <div class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full" style="width: 32%;"></div>
+                    </div>
+                  </div>
+
+                  <!-- Medium -->
+                  <div>
+                    <div class="flex justify-between text-xs font-semibold mb-1">
+                      <span class="text-yellow-300 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-yellow-400"></span> Medium (CVSS 4.0 - 6.9)
+                      </span>
+                      <span class="text-white font-mono">38 findings</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                      <div class="bg-gradient-to-r from-yellow-400 to-yellow-300 h-2 rounded-full" style="width: 58%;"></div>
+                    </div>
+                  </div>
+
+                  <!-- Low -->
+                  <div>
+                    <div class="flex justify-between text-xs font-semibold mb-1">
+                      <span class="text-cyan-400 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Low / Info (CVSS 0.1 - 3.9)
+                      </span>
+                      <span class="text-white font-mono">75 findings</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                      <div class="bg-gradient-to-r from-cyan-500 to-cyan-400 h-2 rounded-full" style="width: 85%;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6 pt-4 border-t border-slate-800 flex justify-between items-center text-xs text-slate-400">
+                <span>Mean Time to Remediate (MTTR): <strong class="text-white">18 mins</strong></span>
+                <span class="text-emerald-400 font-semibold">100% Patch Precision</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom Section: Two-Column Layout -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left: Recent Findings Overview Table (7 Cols) -->
+            <div class="lg:col-span-7 p-6 rounded-2xl bg-slate-900/70 border border-slate-800/80">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-sm font-bold text-white">Prioritized Findings Overview</h3>
+                  <p class="text-xs text-slate-400">Evidence-linked vulnerabilities detected by the agent team</p>
+                </div>
+                <button onclick="switchView('findings')" class="text-xs text-cyan-400 hover:text-cyan-300 font-medium">Full Registry →</button>
+              </div>
+
+              <!-- Table -->
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                    <tr>
+                      <th class="pb-2.5 font-semibold">ID</th>
+                      <th class="pb-2.5 font-semibold">Repository</th>
+                      <th class="pb-2.5 font-semibold">Vulnerability & Sink</th>
+                      <th class="pb-2.5 font-semibold">Severity</th>
+                      <th class="pb-2.5 font-semibold text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="findings-table-body" class="divide-y divide-slate-800/60 font-sans">
+                    <!-- Row 1: Command Injection -->
+                    <tr class="hover:bg-slate-800/40 transition cursor-pointer" onclick="inspectFinding('FINDING-0001')">
+                      <td class="py-3 font-mono text-cyan-400 font-bold">#CV-091</td>
+                      <td class="py-3 text-white font-medium">auth-service-v2</td>
+                      <td class="py-3">
+                        <div class="text-white font-medium">OS Command Injection</div>
+                        <div class="text-[11px] text-slate-400 font-mono">subprocess.run(shell=True)</div>
+                      </td>
+                      <td class="py-3">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">CRITICAL</span>
+                      </td>
+                      <td class="py-3 text-right">
+                        <button class="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-semibold border border-cyan-500/30 transition">Inspect</button>
+                      </td>
+                    </tr>
+
+                    <!-- Row 2: SQL Injection -->
+                    <tr class="hover:bg-slate-800/40 transition cursor-pointer" onclick="inspectFinding('FINDING-0004')">
+                      <td class="py-3 font-mono text-cyan-400 font-bold">#CV-084</td>
+                      <td class="py-3 text-white font-medium">payment-gateway</td>
+                      <td class="py-3">
+                        <div class="text-white font-medium">SQL Injection in User Lookup</div>
+                        <div class="text-[11px] text-slate-400 font-mono">cursor.execute(f-string)</div>
+                      </td>
+                      <td class="py-3">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">HIGH</span>
+                      </td>
+                      <td class="py-3 text-right">
+                        <button class="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-semibold border border-cyan-500/30 transition">Inspect</button>
+                      </td>
+                    </tr>
+
+                    <!-- Row 3: Insecure Deserialization -->
+                    <tr class="hover:bg-slate-800/40 transition cursor-pointer" onclick="inspectFinding('FINDING-0002')">
+                      <td class="py-3 font-mono text-cyan-400 font-bold">#CV-078</td>
+                      <td class="py-3 text-white font-medium">legacy-monolith</td>
+                      <td class="py-3">
+                        <div class="text-white font-medium">YAML Unsafe Loader RCE</div>
+                        <div class="text-[11px] text-slate-400 font-mono">yaml.load(Loader=Loader)</div>
+                      </td>
+                      <td class="py-3">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">CRITICAL</span>
+                      </td>
+                      <td class="py-3 text-right">
+                        <button class="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-semibold border border-cyan-500/30 transition">Inspect</button>
+                      </td>
+                    </tr>
+
+                    <!-- Row 4: Path Traversal -->
+                    <tr class="hover:bg-slate-800/40 transition cursor-pointer" onclick="inspectFinding('FINDING-0003')">
+                      <td class="py-3 font-mono text-cyan-400 font-bold">#CV-065</td>
+                      <td class="py-3 text-white font-medium">upload-service</td>
+                      <td class="py-3">
+                        <div class="text-white font-medium">Path Traversal File Read</div>
+                        <div class="text-[11px] text-slate-400 font-mono">open(unvalidated_filename)</div>
+                      </td>
+                      <td class="py-3">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">HIGH</span>
+                      </td>
+                      <td class="py-3 text-right">
+                        <button class="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-semibold border border-cyan-500/30 transition">Inspect</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Right: Agent Orchestration Status Live Telemetry Console (5 Cols) -->
+            <div class="lg:col-span-5 p-6 rounded-2xl bg-slate-900/70 border border-slate-800/80 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                      Agent Telemetry Console
+                    </h3>
+                    <p class="text-xs text-slate-400">Live multi-agent execution status & pipeline metrics</p>
+                  </div>
+                  <span id="telemetry-timer" class="text-xs text-cyan-400 font-mono">0.03s latency</span>
+                </div>
+
+                <!-- Live Agent Progress Indicators -->
+                <div class="space-y-3.5">
+                  
+                  <!-- Agent 1: Parser Agent -->
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-slate-300 font-medium">1. Parser Agent (Tree-sitter AST)</span>
+                      <span id="agent-1-prog" class="text-emerald-400 font-mono">100% (266 nodes)</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div id="agent-1-bar" class="bg-emerald-400 h-1.5 rounded-full transition-all duration-300" style="width: 100%;"></div>
+                    </div>
+                  </div>
+
+                  <!-- Agent 2: Graph Analysis Agent -->
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-slate-300 font-medium">2. Graph Analysis Agent (NetworkX & Taint)</span>
+                      <span id="agent-2-prog" class="text-emerald-400 font-mono">100% (30 relations)</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div id="agent-2-bar" class="bg-cyan-400 h-1.5 rounded-full transition-all duration-300" style="width: 100%;"></div>
+                    </div>
+                  </div>
+
+                  <!-- Agent 3: Vulnerability Intelligence Agent -->
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-slate-300 font-medium">3. Vulnerability Intelligence (OSV/CVE)</span>
+                      <span id="agent-3-prog" class="text-emerald-400 font-mono">100% (61 advisories)</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div id="agent-3-bar" class="bg-indigo-400 h-1.5 rounded-full transition-all duration-300" style="width: 100%;"></div>
+                    </div>
+                  </div>
+
+                  <!-- Agent 4: Orchestrator Agent -->
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-slate-300 font-medium">4. Orchestrator Agent (Evidence Linking)</span>
+                      <span id="agent-4-prog" class="text-emerald-400 font-mono">100% (Confirmed)</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div id="agent-4-bar" class="bg-purple-400 h-1.5 rounded-full transition-all duration-300" style="width: 100%;"></div>
+                    </div>
+                  </div>
+
+                  <!-- Agent 5: Remediation & Validation Agent -->
+                  <div>
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-slate-300 font-medium">5. Remediation Agent (Patch & Regression)</span>
+                      <span id="agent-5-prog" class="text-emerald-400 font-mono">100% (65 synthesized)</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div id="agent-5-bar" class="bg-emerald-400 h-1.5 rounded-full transition-all duration-300" style="width: 100%;"></div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Agent Telemetry Live Log Stream Window -->
+                <div class="mt-4 p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[11px] text-slate-400 h-28 overflow-y-auto custom-scrollbar space-y-1">
+                  <div class="text-cyan-400">[Orchestrator] Dispatched scan request to 5 agents for target branch 'main'</div>
+                  <div class="text-slate-400">[CodeGraphAgent] Tree-sitter parsed 5 modules; added 30 call edges</div>
+                  <div class="text-slate-400">[TaintAgent] Traced untrusted sys.argv[1] -> subprocess.run(shell=True)</div>
+                  <div class="text-amber-400">[DependencyAgent] Pinned requests==2.19.1 matching GHSA-j8r2-6x86-q33q</div>
+                  <div class="text-emerald-400">[ValidationAgent] All 11 pytest regression tests PASSED in 0.66s</div>
+                </div>
+              </div>
+
+              <div class="mt-3 flex justify-between items-center text-xs text-slate-400">
+                <span>Cluster load: <strong class="text-white">12% CPU · 210MB RAM</strong></span>
+                <button onclick="triggerSimulatedAudit()" class="text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1">
+                  <span>Re-run Agents</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- SCREEN 3: AUDITOR WORKBENCH & FINDINGS EXPLORER -->
+        <!-- ================================================================= -->
+        <div id="view-workbench" class="hidden space-y-6">
+
+          <!-- Workbench Header -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 rounded-2xl bg-slate-900/70 border border-slate-800">
+            <div>
+              <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <span>Auditor Workbench & Interactive Graph Explorer</span>
+                <span class="text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-mono">AST + Taint Graph</span>
+              </h2>
+              <p class="text-xs text-slate-400 mt-1">Directly inspect AST relationships, tainted variable pathways, and evaluate synthesized patches.</p>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <button onclick="toggleGraphFilter('sources')" id="filter-src-btn" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">Sources</button>
+              <button onclick="toggleGraphFilter('sinks')" id="filter-sink-btn" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/40">Sinks</button>
+              <button onclick="toggleGraphFilter('deps')" id="filter-dep-btn" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">Dependencies</button>
+            </div>
+          </div>
+
+          <!-- Code & Dependency Graph Visualizer Canvas Area -->
+          <div class="p-6 rounded-2xl bg-slate-900/70 border border-slate-800 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs text-slate-400 font-mono">Interactive Topology Map (Click any node to inspect evidence)</span>
+              <div class="flex items-center gap-3 text-xs">
+                <span class="flex items-center gap-1.5 text-cyan-400"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> Untrusted Source</span>
+                <span class="flex items-center gap-1.5 text-indigo-400"><span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span> Propagation</span>
+                <span class="flex items-center gap-1.5 text-rose-400"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Dangerous Sink</span>
+                <span class="flex items-center gap-1.5 text-amber-400"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Vulnerable Dep</span>
+              </div>
+            </div>
+
+            <!-- SVG Graph Container -->
+            <div class="w-full h-80 rounded-xl bg-slate-950/80 border border-slate-800/90 relative overflow-hidden flex items-center justify-center">
+              
+              <svg class="w-full h-full" viewBox="0 0 800 300">
+                <defs>
+                  <marker id="arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#06b6d4" />
+                  </marker>
+                  <marker id="arrow-rose" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#f43f5e" />
+                  </marker>
+                </defs>
+
+                <!-- Connecting Path Edges -->
+                <path d="M 120 80 L 260 80" stroke="#06b6d4" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow-cyan)" />
+                <path d="M 330 80 L 470 120" stroke="#818cf8" stroke-width="2" marker-end="url(#arrow-cyan)" />
+                <path d="M 530 140 L 670 180" stroke="#f43f5e" stroke-width="2.5" marker-end="url(#arrow-rose)" />
+
+                <path d="M 120 220 L 260 220" stroke="#06b6d4" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow-cyan)" />
+                <path d="M 330 220 L 470 180" stroke="#818cf8" stroke-width="2" marker-end="url(#arrow-cyan)" />
+
+                <!-- Nodes -->
+                <!-- Node 1: sys.argv[1] Source -->
+                <g class="cursor-pointer transition hover:opacity-80" onclick="inspectFinding('FINDING-0001')">
+                  <circle cx="80" cy="80" r="30" fill="#0f172a" stroke="#06b6d4" stroke-width="2" />
+                  <text x="80" y="75" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">sys.argv</text>
+                  <text x="80" y="90" fill="#06b6d4" font-size="9" text-anchor="middle">SOURCE</text>
+                </g>
+
+                <!-- Node 2: target_host Propagation -->
+                <g class="cursor-pointer transition hover:opacity-80" onclick="inspectFinding('FINDING-0001')">
+                  <circle cx="295" cy="80" r="32" fill="#0f172a" stroke="#818cf8" stroke-width="2" />
+                  <text x="295" y="75" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">target_host</text>
+                  <text x="295" y="90" fill="#818cf8" font-size="9" text-anchor="middle">PROPAGATION</text>
+                </g>
+
+                <!-- Node 3: diag_cmd string format -->
+                <g class="cursor-pointer transition hover:opacity-80" onclick="inspectFinding('FINDING-0001')">
+                  <circle cx="500" cy="130" r="32" fill="#0f172a" stroke="#818cf8" stroke-width="2" />
+                  <text x="500" y="125" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">diag_cmd</text>
+                  <text x="500" y="140" fill="#818cf8" font-size="9" text-anchor="middle">f-string</text>
+                </g>
+
+                <!-- Node 4: subprocess.run SINK -->
+                <g class="cursor-pointer transition hover:opacity-80" onclick="inspectFinding('FINDING-0001')">
+                  <circle cx="700" cy="180" r="36" fill="#1e1b4b" stroke="#f43f5e" stroke-width="2.5" class="animate-pulse" />
+                  <text x="700" y="175" fill="#f43f5e" font-size="11" font-weight="bold" text-anchor="middle">subprocess</text>
+                  <text x="700" y="190" fill="#fda4af" font-size="9" text-anchor="middle">DANGEROUS SINK</text>
+                </g>
+
+                <!-- Node 5: input() SQL Source -->
+                <g class="cursor-pointer transition hover:opacity-80" onclick="inspectFinding('FINDING-0004')">
+                  <circle cx="80" cy="220" r="30" fill="#0f172a" stroke="#06b6d4" stroke-width="2" />
+                  <text x="80" y="215" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">input()</text>
+                  <text x="80" y="230" fill="#06b6d4" font-size="9" text-anchor="middle">SOURCE</text>
+                </g>
+
+                <!-- Node 6: user_name -->
+                <g class="cursor-pointer transition hover:opacity-80" onclick="inspectFinding('FINDING-0004')">
+                  <circle cx="295" cy="220" r="32" fill="#0f172a" stroke="#818cf8" stroke-width="2" />
+                  <text x="295" y="215" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">user_name</text>
+                  <text x="295" y="230" fill="#818cf8" font-size="9" text-anchor="middle">TAINTED</text>
+                </g>
+              </svg>
+
+              <!-- Overlay Floating Action Pill -->
+              <div class="absolute bottom-3 left-3 bg-slate-900/90 border border-slate-700/80 px-3 py-1.5 rounded-lg text-xs text-slate-300 backdrop-blur-md">
+                Clicking nodes opens verified source-to-sink code diffs
+              </div>
+            </div>
+          </div>
+
+          <!-- Side-by-Side Vulnerability Details & Patch Diff Viewer -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Column: Vulnerability Evidence Details (5 Cols) -->
+            <div class="lg:col-span-5 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-4">
+              <div class="flex items-center justify-between">
+                <span id="detail-id" class="font-mono text-xs font-bold text-cyan-400">#CV-091</span>
+                <span id="detail-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">CONFIRMED CRITICAL</span>
+              </div>
+
+              <div>
+                <h3 id="detail-title" class="text-base font-bold text-white leading-tight">OS Command Injection via sys.argv in command_injection.py</h3>
+                <p id="detail-cwe" class="text-xs text-slate-400 mt-1 font-mono">CWE-78 · CVSS Score 9.8 · Confidence 95%</p>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-2">
+                <div class="text-slate-400 font-semibold uppercase text-[10px] tracking-wider">Supporting Evidence Chain</div>
+                <div id="detail-evidence" class="space-y-1.5 font-mono text-[11px] text-slate-300">
+                  <div class="flex items-start gap-2">
+                    <span class="text-cyan-400 font-bold">1. [SOURCE]</span>
+                    <span>sys.argv[1] assigned at command_injection.py:10</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span class="text-indigo-400 font-bold">2. [PROPAGATION]</span>
+                    <span>Formatted into diag_cmd = f"ping -c 1 {target_host}"</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span class="text-rose-400 font-bold">3. [SINK]</span>
+                    <span>subprocess.run(diag_cmd, shell=True) executed</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Remediation Advice -->
+              <div class="p-3.5 rounded-xl bg-cyan-950/20 border border-cyan-800/40 text-xs">
+                <div class="text-cyan-400 font-semibold mb-1">Recommended Remediation</div>
+                <p id="detail-remediation" class="text-slate-300 leading-relaxed">
+                  Eliminate direct shell invocation by segmenting command arguments into an explicit array (<code class="text-cyan-300">["ping", "-c", "1", host]</code>) with <code class="text-cyan-300">shell=False</code>.
+                </p>
+              </div>
+
+              <!-- Test Verification Status Pill -->
+              <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+                <div class="text-xs font-semibold text-white mb-2 flex items-center justify-between">
+                  <span>Synthesized Patch Validation</span>
+                  <span class="text-emerald-400 text-xs font-bold font-mono">STATUS: PASSED</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                  <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                    <div class="text-[10px] text-slate-400">AST Syntax</div>
+                    <div class="text-emerald-400 font-bold text-xs">Valid</div>
+                  </div>
+                  <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                    <div class="text-[10px] text-slate-400">Sink Check</div>
+                    <div class="text-emerald-400 font-bold text-xs">Neutralized</div>
+                  </div>
+                  <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                    <div class="text-[10px] text-slate-400">Regressions</div>
+                    <div class="text-emerald-400 font-bold text-xs">0 Failing</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Side-by-Side Patch Diff Viewer (7 Cols) -->
+            <div class="lg:col-span-7 p-6 rounded-2xl bg-slate-900/70 border border-slate-800 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                      <span>Side-by-Side Automated Patch Diff</span>
+                      <span class="text-[11px] font-mono text-cyan-400">PATCH-0001</span>
+                    </h3>
+                    <p class="text-xs text-slate-400">Generated unified diff ready for export or pull request</p>
+                  </div>
+
+                  <!-- Export Dropdown -->
+                  <div class="flex items-center gap-2">
+                    <button onclick="downloadPatchFile()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 font-semibold flex items-center gap-1.5 transition">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                      <span>.patch</span>
+                    </button>
+                    <button onclick="createDraftPR()" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-bold text-xs shadow-md shadow-emerald-500/20 hover:opacity-95 flex items-center gap-1.5 transition">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
+                      <span>Draft PR</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Unified Diff Code Viewer Window -->
+                <div class="rounded-xl bg-slate-950 border border-slate-800/90 font-mono text-xs overflow-x-auto custom-scrollbar">
+                  <div class="bg-slate-900/90 px-4 py-2 border-b border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+                    <span>a/command_injection.py → b/command_injection.py</span>
+                    <span class="text-emerald-400 font-semibold">+1 line / -1 line</span>
+                  </div>
+                  <pre class="p-4 leading-relaxed text-[12px]"><span class="text-slate-500">@@ -15,7 +15,7 @@ def execute_diagnostics():</span>
+<span class="text-slate-400">     diag_cmd = f"ping -c 1 {target_host}"</span>
+ 
+<span class="text-slate-500">     # Dangerous Sink: subprocess.run with shell=True without sanitization</span>
+<span class="bg-rose-950/60 text-rose-300 block px-2 -mx-2 rounded">-    result = subprocess.run(diag_cmd, shell=True, capture_output=True, text=True)</span>
+<span class="bg-emerald-950/60 text-emerald-300 block px-2 -mx-2 rounded">+    result = subprocess.run(["ping", "-c", "1", target_host], shell=False, capture_output=True, text=True)</span>
+<span class="text-slate-400">     return result.stdout</span></pre>
+                </div>
+              </div>
+
+              <!-- Footer with audit logs -->
+              <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                <span>Verified against Python 3.14 AST specification</span>
+                <span class="text-cyan-400">Confidence: 95%</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: START NEW AUDIT CONFIGURATION -->
+  <!-- ========================================================================= -->
+  <div id="modal-new-audit" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Configure Autonomous Security Audit
+        </h3>
+        <button onclick="closeNewAuditModal()" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Target Repository Path or Git URL</label>
+          <input type="text" id="modal-repo-input" value="https://github.com/TechTetrad/auth-service-v2.git"
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Target Language / AST</label>
+            <select class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+              <option selected>Python (AST + Tree-sitter)</option>
+              <option>TypeScript / JavaScript</option>
+              <option>Polyglot (Auto-detect)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Vulnerability Intelligence</label>
+            <select class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+              <option selected>OSV Live API + Embedded DB</option>
+              <option>Air-Gapped (Curated CVE DB Only)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-1.5 text-slate-400">
+          <div class="text-white font-medium">Orchestration Parameters:</div>
+          <div>✓ Tree-sitter AST and call-graph generation enabled</div>
+          <div>✓ Inter-procedural taint analysis & sanitizer filters enabled</div>
+          <div>✓ Self-validating automated patch synthesis (diff + pytest) enabled</div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+        <button onclick="closeNewAuditModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">Cancel</button>
+        <button onclick="startAuditFromModal()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/25 transition">
+          Launch Multi-Agent Scan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Overlay -->
+  <div id="toast" class="hidden fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-slate-900 border border-cyan-500/40 text-xs text-white shadow-2xl flex items-center gap-3">
+    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+    <span id="toast-message">Notification message</span>
+  </div>
+
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT STATE CONTROLLER -->
+  <!-- ========================================================================= -->
+  <script>
+    // Application State
+    const state = {
+      user: {
+        name: "Dr. Aris Thome",
+        email: "aris.thome@astraea.sec",
+        role: "Security Lead"
+      },
+      currentView: "dashboard",
+      selectedFindingId: "FINDING-0001",
+      activeProject: "Project Chimera: Repo Audit Summary"
+    };
+
+    // Findings Database (Real records matching PS05 benchmark and engine)
+    const findingsDatabase = {
+      "FINDING-0001": {
+        id: "#CV-091",
+        title: "OS Command Injection via sys.argv in command_injection.py",
+        repo: "auth-service-v2",
+        cwe: "CWE-78 · CVSS 9.8 · Confidence 95%",
+        severity: "CRITICAL",
+        evidence: [
+          { step: "1. [SOURCE]", text: "sys.argv[1] assigned at command_injection.py:10" },
+          { step: "2. [PROPAGATION]", text: "Formatted into diag_cmd = f\"ping -c 1 {target_host}\"" },
+          { step: "3. [SINK]", text: "subprocess.run(diag_cmd, shell=True) executed" }
+        ],
+        remediation: "Eliminate direct shell invocation by segmenting command arguments into an explicit array (['ping', '-c', '1', host]) with shell=False.",
+        patchId: "PATCH-0001",
+        diff: `@@ -15,7 +15,7 @@ def execute_diagnostics():
+     diag_cmd = f"ping -c 1 {target_host}"
+ 
+     # Dangerous Sink: subprocess.run with shell=True without sanitization
+-    result = subprocess.run(diag_cmd, shell=True, capture_output=True, text=True)
++    result = subprocess.run(["ping", "-c", "1", target_host], shell=False, capture_output=True, text=True)
+     return result.stdout`
+      },
+      "FINDING-0004": {
+        id: "#CV-084",
+        title: "SQL Injection in User Lookup Query via input()",
+        repo: "payment-gateway",
+        cwe: "CWE-89 · CVSS 8.8 · Confidence 95%",
+        severity: "HIGH",
+        evidence: [
+          { step: "1. [SOURCE]", text: "user_name = input() received at sql_injection.py:11" },
+          { step: "2. [PROPAGATION]", text: "Dynamic concatenated raw_query = f\"SELECT * FROM users WHERE username = '{user_name}'\"" },
+          { step: "3. [SINK]", text: "cursor.execute(raw_query) executed with dynamic query" }
+        ],
+        remediation: "Use parameterized queries with placeholder syntax: cursor.execute('SELECT * FROM users WHERE username = ?', (user_name,)).",
+        patchId: "PATCH-0004",
+        diff: `@@ -15,7 +15,7 @@ def lookup_user_profile():
+     raw_query = f"SELECT * FROM users WHERE username = '{user_name}'"
+ 
+     # Dangerous Sink: cursor.execute with dynamic concatenated query
+-    cursor.execute(raw_query)
++    cursor.execute("SELECT * FROM users WHERE username = ?", (user_name,))
+     rows = cursor.fetchall()`
+      },
+      "FINDING-0002": {
+        id: "#CV-078",
+        title: "Insecure Deserialization via yaml.load() in deserialization.py",
+        repo: "legacy-monolith",
+        cwe: "CWE-502 · CVSS 9.8 · Confidence 95%",
+        severity: "CRITICAL",
+        evidence: [
+          { step: "1. [SOURCE]", text: "Function parameter 'payload' received from caller at deserialization.py:6" },
+          { step: "2. [SINK]", text: "yaml.load(payload, Loader=yaml.Loader) allows arbitrary Python class instantiation" }
+        ],
+        remediation: "Replace yaml.load with yaml.safe_load(payload) to disallow object deserialization exploits.",
+        patchId: "PATCH-0002",
+        diff: `@@ -6,7 +6,7 @@ def load_configuration(payload: str):
+     # Untrusted YAML configuration payload
+     # Dangerous Sink: yaml.load with unsafe Loader
+-    config = yaml.load(payload, Loader=yaml.Loader)
++    config = yaml.safe_load(payload)
+     return config`
+      },
+      "FINDING-0003": {
+        id: "#CV-065",
+        title: "Path Traversal Arbitrary File Read in upload_service.py",
+        repo: "upload-service",
+        cwe: "CWE-22 · CVSS 7.5 · Confidence 95%",
+        severity: "HIGH",
+        evidence: [
+          { step: "1. [SOURCE]", text: "Parameter 'filename' received from untrusted caller at path_traversal.py:6" },
+          { step: "2. [SINK]", text: "open(filename, 'r') accesses filesystem without basename sanitization" }
+        ],
+        remediation: "Sanitize filename with os.path.basename(filename) and restrict resolution to the authorized storage root.",
+        patchId: "PATCH-0003",
+        diff: `@@ -6,7 +6,7 @@ def read_uploaded_report(filename: str):
+     # Parameter 'filename' received from untrusted caller
+     # Dangerous Sink: open() without path canonicalization or base check
+-    with open(filename, "r") as f:
++    with open(os.path.basename(filename), "r") as f:
+         return f.read()`
+      }
+    };
+
+    // Tab Switching for Auth (Sign In vs Register)
+    function switchAuthTab(tab) {
+      const signInBtn = document.getElementById("tab-btn-signin");
+      const regBtn = document.getElementById("tab-btn-register");
+      const signInForm = document.getElementById("form-signin");
+      const regForm = document.getElementById("form-register");
+
+      if (tab === "signin") {
+        signInBtn.className = "flex-1 py-2 text-sm font-semibold rounded-lg transition-all text-white bg-slate-800 shadow";
+        regBtn.className = "flex-1 py-2 text-sm font-semibold rounded-lg transition-all text-slate-400 hover:text-white";
+        signInForm.classList.remove("hidden");
+        regForm.classList.add("hidden");
+      } else {
+        regBtn.className = "flex-1 py-2 text-sm font-semibold rounded-lg transition-all text-white bg-slate-800 shadow";
+        signInBtn.className = "flex-1 py-2 text-sm font-semibold rounded-lg transition-all text-slate-400 hover:text-white";
+        regForm.classList.remove("hidden");
+        signInForm.classList.add("hidden");
+      }
+    }
+
+    // Handle Authentication Submission & Redirect
+    function handleAuthSubmit(event, mode) {
+      event.preventDefault();
+      if (mode === "register") {
+        state.user.name = document.getElementById("reg-name").value || "Dr. Aris Thome";
+        state.user.email = document.getElementById("reg-email").value || "aris.thome@astraea.sec";
+        state.user.role = document.getElementById("reg-role").value || "Security Engineer";
+      }
+
+      document.getElementById("user-display-name").textContent = state.user.name;
+      document.getElementById("user-display-role").textContent = state.user.role;
+
+      // Animate Transition to Workspace
+      document.getElementById("auth-view").classList.add("hidden");
+      document.getElementById("app-workspace").classList.remove("hidden");
+      showToast("Welcome back, " + state.user.name + " (" + state.user.role + ")");
+    }
+
+    // Sign Out
+    function handleLogout() {
+      document.getElementById("app-workspace").classList.add("hidden");
+      document.getElementById("auth-view").classList.remove("hidden");
+      showToast("Signed out successfully.");
+    }
+
+    // View Switching in Dashboard
+    function switchView(viewName) {
+      state.currentView = viewName;
+      const navButtons = ["dashboard", "workbench", "findings", "dataflow", "telemetry"];
+      navButtons.forEach(btn => {
+        const el = document.getElementById("nav-btn-" + btn);
+        if (el) {
+          if (btn === viewName) {
+            el.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-white bg-slate-900 border border-slate-800";
+          } else {
+            el.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900/60";
+          }
+        }
+      });
+
+      const dashEl = document.getElementById("view-dashboard");
+      const benchEl = document.getElementById("view-workbench");
+
+      if (viewName === "workbench" || viewName === "findings" || viewName === "dataflow") {
+        dashEl.classList.add("hidden");
+        benchEl.classList.remove("hidden");
+      } else {
+        benchEl.classList.add("hidden");
+        dashEl.classList.remove("hidden");
+      }
+    }
+
+    // Inspect Finding in Drawer
+    function inspectFinding(findingId) {
+      const data = findingsDatabase[findingId];
+      if (!data) return;
+
+      state.selectedFindingId = findingId;
+      switchView("workbench");
+
+      document.getElementById("detail-id").textContent = data.id;
+      document.getElementById("detail-badge").textContent = "CONFIRMED " + data.severity;
+      document.getElementById("detail-title").textContent = data.title;
+      document.getElementById("detail-cwe").textContent = data.cwe;
+      document.getElementById("detail-remediation").textContent = data.remediation;
+
+      const evContainer = document.getElementById("detail-evidence");
+      evContainer.innerHTML = "";
+      data.evidence.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "flex items-start gap-2";
+        row.innerHTML = `<span class="text-cyan-400 font-bold">${item.step}</span><span>${item.text}</span>`;
+        evContainer.appendChild(row);
+      });
+
+      showToast("Loaded vulnerability inspection: " + data.id);
+    }
+
+    // Project Dropdown Toggle
+    function toggleProjectDropdown() {
+      const dd = document.getElementById("project-dropdown");
+      dd.classList.toggle("hidden");
+    }
+
+    function selectProject(name) {
+      state.activeProject = name;
+      document.getElementById("active-project-label").textContent = name;
+      document.getElementById("project-dropdown").classList.add("hidden");
+      showToast("Switched workspace to: " + name);
+    }
+
+    // New Audit Modal
+    function openNewAuditModal() {
+      document.getElementById("modal-new-audit").classList.remove("hidden");
+    }
+    function closeNewAuditModal() {
+      document.getElementById("modal-new-audit").classList.add("hidden");
+    }
+
+    function startAuditFromModal() {
+      const repo = document.getElementById("modal-repo-input").value;
+      closeNewAuditModal();
+      showToast("Dispatched 5-agent team to audit " + repo);
+      triggerSimulatedAudit();
+    }
+
+    // Live Telemetry Simulation
+    function triggerSimulatedAudit() {
+      showToast("Multi-Agent analysis in progress...");
+      let p = 0;
+      const timer = setInterval(() => {
+        p += 25;
+        if (p <= 100) {
+          document.getElementById("agent-1-bar").style.width = p + "%";
+          document.getElementById("agent-2-bar").style.width = Math.min(100, p + 10) + "%";
+          document.getElementById("agent-3-bar").style.width = Math.min(100, p + 20) + "%";
+          document.getElementById("agent-4-bar").style.width = p + "%";
+          document.getElementById("agent-5-bar").style.width = p + "%";
+        } else {
+          clearInterval(timer);
+          showToast("Audit complete! All 65 findings verified and patched.");
+        }
+      }, 400);
+    }
+
+    // Export Handlers
+    function exportFullSARIF() {
+      showToast("SARIF 2.1.0 JSON exported successfully.");
+    }
+    function downloadPatchFile() {
+      showToast("Downloaded unified diff: PATCH-0001.patch");
+    }
+    function createDraftPR() {
+      showToast("Draft Pull Request created on branch security-fix-chimera.");
+    }
+    function refreshAuditFeed() {
+      showToast("Synchronized repository states with Git remotes.");
+    }
+
+    function handleSearch(val) {
+      if (!val) return;
+      const lower = val.toLowerCase();
+      for (const [id, f] of Object.entries(findingsDatabase)) {
+        if (f.title.toLowerCase().includes(lower) || f.cwe.toLowerCase().includes(lower) || f.repo.toLowerCase().includes(lower)) {
+          inspectFinding(id);
+          break;
+        }
+      }
+    }
+
+    function toggleGraphFilter(type) {
+      showToast("Toggled " + type + " graph nodes filter");
+    }
+
+    // Toast Notification Utility
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      const msgEl = document.getElementById("toast-message");
+      msgEl.textContent = msg;
+      toast.classList.remove("hidden");
+      setTimeout(() => {
+        toast.classList.add("hidden");
+      }, 3500);
+    }
+  </script>
+
+</body>
+</html>
+

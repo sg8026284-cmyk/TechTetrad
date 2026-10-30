@@ -1,0 +1,32 @@
+{
+  "evaluation_timestamp": "2026-10-30T20:01:24Z",
+  "dataset_statistics": {
+    "vulnerable_codebase_files": 5,
+    "vulnerable_ast_nodes": 266,
+    "safe_codebase_files": 5,
+    "safe_ast_nodes": 265,
+    "total_benchmark_targets": 20
+  },
+  "detection_metrics": {
+    "true_positives": 10,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "true_negatives": 10,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "false_positive_rate": 0.0,
+    "dependency_advisory_accuracy": 1.0,
+    "source_to_sink_path_accuracy": 1.0
+  },
+  "patch_metrics": {
+    "total_patches_synthesized": 10,
+    "validated_passed_patches": 10,
+    "patch_success_rate": 1.0
+  },
+  "performance": {
+    "vulnerable_suite_duration_sec": 0.022,
+    "safe_suite_duration_sec": 0.005,
+    "total_duration_sec": 0.026
+  }
+}
