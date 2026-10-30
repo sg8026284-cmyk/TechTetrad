@@ -93,6 +93,7 @@ def deploy():
     payload = {
         "name": "astraea-devsecops-auditor",
         "files": files_payload,
+        "target": "production",
         "projectSettings": {
             "framework": None
         }
